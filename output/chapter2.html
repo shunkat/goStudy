@@ -8,7 +8,7 @@
   <title>Hello worldしよう</title>
 </head>
 <body>
-  <h1>こんにちは世界</h1>
+  <h1>こんにちは世界</h1>t
   <div class="sectionWrapper">
     <h2>GoPATHを通す</h2>
     go pathはgoの各種パッケージをおいておく場所を指定したりするもの。
@@ -36,13 +36,35 @@
   <div class="sectionWrapper">
     <h2>A tour of GO</h2>
     goをブラウザ上で実行できるのがa tour of go
-    <br>ただし、時間がgoのできた時間に固定されていたり制限はある。
+    <br>ただし時間がgoのできた時間に固定されていたり制限はある。
     <br>実際に同じものを作ってgo runすることで違いがわかるよ
 
   </div>
   <div class="sectionWrapper">
-    <h2>Packages</h2>
+    <h2>import</h2>
     goのプログラムはpackageで構成されます
+    <br>先程のプロダクトのなかでpackage mainと書いたところがありました。
+    <br>それはsrc/github.com/tpng/gopkgs/main.goの中にある、func main()以下の記述が読まれているという意味です。
+    <br>基本的なpackageはgoogle で調べるとその中身が見れます
+    <br>おそらくimportしたパッケージは使わないと行けない予感がします。
+    <h2>export</h2>
+    exportして外部のパッケージから読めるようなものは最初が大文字から始まっています。
+    <br>大文字で指定したら外部パッケージからの変数を使えるってことです。
+    <h2>変数</h2>
+    varステートメントは変数の宣言です。まぁ知ってるよね。
+    <br>書き方はvar i int = 20 のような書き方
+    <br>ただし、funcのなかだったらi:=10のような書き方もできるよ
+    <div class="box">
+      <h3>組み込み型</h3>
+      <ul>
+        <li>bool</li>
+        <li>string</li>
+        <li>int</li>
+        ただし、int型は8,16やuint,それの別名byte runeなどがある
+        <li>float</li>
+        小数点
+      </ul>
+    </div>
   </div>
 
 </body>
