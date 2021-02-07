@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Hello worldしよう</title>
+</head>
+<body>
+  <h1>こんにちは世界</h1>
+  <div class="sectionWrapper">
+    <h2>GoPATHを通す</h2>
+    go pathはgoの各種パッケージをおいておく場所を指定したりするもの。
+    <div class="code">
+      >go env GOPATH
+    </div>
+    でgopathの場所を確認できる。version1.8以上であればこの設定は自動で行われるので気にしない。
+    <br>ちなみに自分は```/USERS/なまえ/go```でした
+
+    <h2>実行する</h2>
+    先程作ったsrcディレクトリの中でhello.goを書く
+    <div class="code">
+      package main
+      <br>import "fmt"
+      <br>func main() {
+      <br>	fmt.Println("hello world")
+      <br>}
+    </div>
+    次に２パターンの実行方法
+    <ol>
+      <li>go buildしてできたファイルをターミナルから指定して実行</li>
+      <li>go runする（コンパイル後のファイルが残らない）</li>
+    </ol>
+  </div>
+  <div class="sectionWrapper">
+    <h2>A tour of GO</h2>
+    goをブラウザ上で実行できるのがa tour of go
+    <br>ただし、時間がgoのできた時間に固定されていたり制限はある。
+    <br>実際に同じものを作ってgo runすることで違いがわかるよ
+
+  </div>
+  <div class="sectionWrapper">
+    <h2>Packages</h2>
+    goのプログラムはpackageで構成されます
+  </div>
+
+</body>
+</html>
