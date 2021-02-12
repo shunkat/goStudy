@@ -10,7 +10,7 @@
 <body>
   <h1>こんにちは世界</h1>t
   <div class="sectionWrapper">
-    <h2>GoPATHを通す</h2>
+    <h3>GoPATHを通す</h3>
     go pathはgoの各種パッケージをおいておく場所を指定したりするもの。
     <div class="code">
       >go env GOPATH
@@ -18,7 +18,7 @@
     でgopathの場所を確認できる。version1.8以上であればこの設定は自動で行われるので気にしない。
     <br>ちなみに自分は```/USERS/なまえ/go```でした
 
-    <h2>実行する</h2>
+    <h3>実行する</h3>
     先程作ったsrcディレクトリの中でhello.goを書く
     <div class="code">
       package main
@@ -34,23 +34,23 @@
     </ol>
   </div>
   <div class="sectionWrapper">
-    <h2>A tour of GO</h2>
+    <h3>A tour of GO</h3>
     goをブラウザ上で実行できるのがa tour of go
     <br>ただし時間がgoのできた時間に固定されていたり制限はある。
     <br>実際に同じものを作ってgo runすることで違いがわかるよ
 
   </div>
   <div class="sectionWrapper">
-    <h2>import</h2>
+    <h3>import</h3>
     goのプログラムはpackageで構成されます
     <br>先程のプロダクトのなかでpackage mainと書いたところがありました。
     <br>それはsrc/github.com/tpng/gopkgs/main.goの中にある、func main()以下の記述が読まれているという意味です。
     <br>基本的なpackageはgoogle で調べるとその中身が見れます
     <br>おそらくimportしたパッケージは使わないと行けない予感がします。
-    <h2>export</h2>
+    <h3>export</h3>
     exportして外部のパッケージから読めるようなものは最初が大文字から始まっています。
     <br>大文字で指定したら外部パッケージからの変数を使えるってことです。
-    <h2>変数</h2>
+    <h3>変数</h3>
     varステートメントは変数の宣言です。まぁ知ってるよね。
     <br>書き方はvar i int = 20 のような書き方
     <br>ただし、funcのなかだったらi:=10のような書き方もできるよ
@@ -63,9 +63,372 @@
         ただし、int型は8,16やuint,それの別名byte runeなどがある
         <li>float</li>
         小数点
+        <h5>	fmt.Printf("%T %v\n", i, j)</h5>
+        これで型のtypeとvalueが見られるよ。変数の指定は後ろの引数で行ってるよ
       </ul>
+      <h3>型変換</h3>
+        <div class="code">	var s float64 = math.Sqrt(float64(j))</div>
+        これで型変換できるよ
+    </div>
+    <div class="itemWrapper">
+      <h3>定数</h3>
+      constantsはchar,string,boolean,numericのみでしか使えません。
+      <br>しかも:=を使って型推論もできません
+      <br>定数はとても正確な値なのでoverflowして正しく計算できないときもあります。
+      <br>ここ基本情報にでてるので復習しよ、
+    </div>
+    <div class="itemWrapper">
+      <h3>関数</h3>
+      書き方は割とかためなのかな
+      <div class="code">
+        func sub(x int, y int) int {
+      	<br>return x - y
+        <br>      }
+      </div>
+      最初に引数とその型を宣言して、次に戻り値の方を宣言、最後にreturnする値を書く。
+      <br>ただしnaked returns statementという書き方もあり短いときはそれでもいいかなぁ
+      <div class="code">
+        func split(sum int) (x, y int) {
+        <br>	x = sum * 4 / 9
+        <br>	y = sum - x
+        <br>	return
+        <br>}
+      </div>
+      コレでも可能です。
+
     </div>
   </div>
+  <div class="sectionWrapper">
+    <h2>制御フロー</h2>
+    複雑なプログラミングの動きも分解すればいくつかの単純な動きの組み合わせだということに気づきますか？
+    <br>この節ではその単純な動きである制御フローを学びます
+    <div class="itemWrapper">
+      <h3>for文</h3>
+      forループは;を使って３つの箇所に別れています。
+      <br>それぞれ普通のプログラミング言語と同じような感じなのですが、他と違いそれらを()で括る必要がありません。
+      <br>それだけではなく、初期化と後処理ステートメントの記述を省略することもできます。
+      <br>そしてさらに驚きなのが;コレも省略することができる点です。
+      <div class="red">めちゃくちゃスッキリしてるし読みやすいよね。</div>
+      <br>具体的に見ていきましょう
+      <ol>
+        <li>
+          初期化ステートメント
+        </li>これは最初のイテレーション【繰り返し】の前に実行される初期化のことです。
+        <li>
+          条件式
+        </li>イテレーション毎に評価します
+        <li>
+          後処理ステートメント
+        </li>イテレーション毎の最後に実行されます。
+        <div class="box">
+          初期化ステートメントは短いforループの中で利用されてforステートメントのスコープの内部のみ有効な変数です。
+
+        </div>
+      </ol>
+      <br>では具体的なコードは
+      <div class="code">
+                package main
+        <br>
+        <br>        import "fmt"
+        <br>
+        <br>        func main() {
+        <br>        	sum := 1
+        <br>        	for sum < 1000 {
+        <br>        		sum += sum
+        <br>        	}
+        <br>        	fmt.Println(sum)
+        <br>        }
+        <br>
+      </div>
+
+        コレは初期化ステートメントと、後処理ステートメントを取っ払って条件式だけにしたあと、その間をつなぐ;をとった形です。
+        <br>コレは見ればわかるけどc言語とかのwhile文と同じです。
+        <br>だからそもそもwhile文が存在しないのです。
+        </div>
+        <div class="itemWrapper">
+          <h3>if文</h3>
+          goの場合はif文もシンプルです
+          <br>forループのときと同じで()は必要ないです。{}は必要です
+          <br>簡単な変数を宣言をすることもできます。もちろんその変数はif文の中でしか使えません。
+          <div class="code">
+            <br>package main
+
+            <br>import (
+            <br>	"fmt"
+            <br>	"math"
+            <br>)
+
+            <br>func Sqrt(x float64) float64 {
+            <br>	z := 1.0
+            <br>	for math.Abs((z*z -x) / (2*z) > 0.01
+            <br>	z := (z*z -x) / (2*z)
+            <br>	for z:= 1.0 {
+
+
+            <br>}
+
+            <br>func main() {
+            <br>	fmt.Println(Sqrt(2))
+            <br>}
+
+          </div>
+          <div class="itemWrapper">
+            <h3>Switch文</h3>
+            if-else分をより短く書く方法がswitch文です
+            <br>breakステートメントを書く必要が無いことがgoのばあいのswitch文の特徴です。
+            <br>またcaseは定数でなくても良いです。
+            <div class="code">
+              package main
+
+              <br>import (
+              <br>	"fmt"
+              <br>	"time"
+              <br>)
+
+              <br>func main() {
+              <br>	fmt.Println("When's Saturday?")
+              <br>	today := time.Now().Weekday()
+              <br>	switch time.Saturday {
+              <br>	case today + 0:
+              <br>		fmt.Println("Today.")
+              <br>	case today + 1:
+              <br>		fmt.Println("Tomorrow.")
+              <br>	case today + 2:
+              <br>		fmt.Println("In two days.")
+              <br>	default:
+              <br>		fmt.Println("Too far away.")
+              <br>	}
+              <br>}
+            </div>
+            また条件のないswitchはswitch trueと同じです。
+            <br>if-then-elseをシンプルに書けるので良いですね
+            <div class="code">
+              package main
+
+              <br>import (
+              <br>	"fmt"
+              <br>	"time"
+              <br>)
+
+              <br>func main() {
+              <br>	t := time.Now()
+              <br>	switch {
+              <br>	case t.Hour() < 12:
+              <br>		fmt.Println("Good morning!")
+              <br>	case t.Hour() < 17:
+              <br>		fmt.Println("Good afternoon.")
+              <br>	default:
+              <br>		fmt.Println("Good evening.")
+              <br>	}
+              <br>}
+
+            </div>
+          </div>
+          <div class="itemWrapper">
+            <h3>Defer</h3>
+            deferに渡した関数の引数はすぐに評価されますが、その関数の呼び出しは呼び出し元の関数がreturnされるまでは行われません。
+            <div class="code">
+              <br>package main
+
+              <br>import "fmt"
+
+              <br>func main() {
+              <br>	defer fmt.Println("world")
+
+              <br>	fmt.Println("hello")
+              <br>}
+
+            </div>
+            deferで書いたものは表示だけが待機した状態で他のすべての表示がおわったあとに表示されます。
+            <br>どういう時に使うかと言うと、処理の重い作業があって先に下の作業に移りたいときにdeferを書いて裏で実行させているようなイメージです。
+
+          </div>
+        </div>
+        <div class="sectionWrapper">
+          <h2>ポインター</h2>
+          c言語にもあるポインターをついにやっていきます。
+          <div class="itemWrapper">
+            <h3>pointerとは</h3>
+            変数が値を格納することは知っているかもしれませんが、その処理は実際のPC上ではメモリというところに値が格納されています。
+            <br>その格納されているメモリのアドレスを指し示すのがpointerです
+            <br>例えば、変数Tのポインターは＊T型でゼロ値はnilです。
+            <br>＆オペレータはそのオペランド（オペレーターの対象のこと）へのポインタを引き出します。
+            <br>意味分かんないですよね、簡単に言うと普通の変数とポインターを区別するための記号が*で、変数の値を表示させたいときに使うのが&っていう認識でいいと思います。
+            <br>自分的の解釈としてはポインターを通して値を代入したり表示したりすることができるだけで必要性がわからないです。
+            <br>そのまま入れればいいじゃん
+            <br>メソッドのところまで行けばこいつの利点がわかるそうです。
+
+          </div>
+          <div class="itemWrapper">
+            <h3>structs</h3>
+            今まで扱った様々な型の変数をまとめて扱えるのが構造体(structs)です。
+            <br>要はオブジェクトですね
+            <br>宣言や代入するときは{値１ 値２}のように書いて、呼び出すときは.で呼びます。
+            <div class="code">
+              package main
+
+              <br>import "fmt"
+
+              <br>type Vertex struct {
+              <br>	X int
+              <br>	Y int
+              <br>}
+
+              <br>func main() {
+              <br>	v := Vertex{1, 2}
+              <br>	v.X = 4
+              <br>	fmt.Println(v.X)
+              <br>}
+
+            </div>
+            このように書きます。
+            <br>先程のポインターと組み合わせることでいい感じにする事もできます。
+            <br>具体的にはstructのポインターを通してアクセスすることができるような感じですね
+            <div class="code">
+              <br>package main
+
+              <br>import "fmt"
+
+              <br>type Vertex struct {
+              <br>	X int
+              <br>	Y int
+              <br>}
+
+              <br>func main() {
+              <br>	v := Vertex{1, 2}
+              <br>	p := &v
+              <br>//ここはほんとは(*p).xとして書くのですがめんどくさいのでしたのように省略することができるのです。
+              <br>	p.X = 1e9
+              <br>	fmt.Println(v)
+              <br>}
+            </div>
+            <h4>structリテラルという考え方</h4>
+            フィールドの値を列挙することで新しいstructの初期値の割当を示しています。
+            <br>name構文を使えば、フィールドの中の一部分だけを変更(追加)することができます。
+            <br>具体的にはv2=Vertex{x:1}のようにすればvertexでx,yが宣言されていた場合、ｘだけに値が代入されて、yは無視です。
+
+          </div>
+          <div class="itemWrapper">
+            <h3>Arrays</h3>
+            [n]T型は型Tのｎ個の変数の配列を表します。
+            <br>var a [10]int
+            <br>とすればintの１０個の要素が入った配列が宣言されます。
+            <br>このように配列の長さは配列の要素のひとつなので変更ができないです。。。え。。。
+            <br>ヤバそうじゃねって思った方のためにみんなが普通に使う配列的なやつも存在します
+            <br>以下に述べるslicesです
+          </div>
+          <div class="itemWrapper">
+            <h3>slices</h3>
+            配列は固定長なのに対して、slicesは可変長です。
+            <div class="code">
+              package main
+
+              <br>import "fmt"
+
+              <br>func main() {
+              <br>	primes := [6]int{2, 3, 5, 7, 11, 13}
+
+              <br>	var s []int = primes[1:4]
+              <br>	fmt.Println(s)
+              <br>}
+
+            </div>
+            こんな感じです。:で区切られた最初のインデックス番号の値から後ろのインデックス番号の値の手前までをとってくることができます。
+            <br>イメージとしては配列にたいする参照みたいな感じですね。
+            <br>スライス自体はデータを格納しているわけではないのですが、スライスの値を変更すると元のstructsとそれを参照している他のslicesに対しても変更が反映されます。
+            <br>配列の長さを指定していないバージョンがsliceだと解釈すると良さそうです
+            <div class="code">
+              //配列だとこう書く
+              [3]bool{true, true, false}
+              //スライスだとこう書く
+              []bool{true, true, false}
+            </div>
+            同じものができていますがそれぞれ配列とスライスで作っています。
+            <br>スライスは長さ(length)と容量(capacity)のふたつの要素を持っています
+            <br>まぁ以下のコードを見てください
+            <div class="code">
+              package main
+
+              <br>import "fmt"
+
+              <br>func main() {
+              <br>	s := []int{2, 3, 5, 7, 11, 13}
+              <br>	printSlice(s)
+
+              <br>	// Slice the slice to give it zero length.
+              <br>	s = s[:0]
+              <br>	printSlice(s)
+
+              <br>	// Extend its length.
+              <br>	s = s[:4]
+              <br>	printSlice(s)
+
+              <br>	// Drop its first two values.
+              <br>	s = s[2:]
+              <br>	printSlice(s)
+              <br>}
+            </div>
+            以上のようにスライスは要素をスライスすることができるものだということがわかりましたね
+            <br>あとは組み込みのmake関数を使用してsliceを作成することができます。
+            <br>値は全部ゼロだけど指定の容量と長さを持つ配列を作り、その配列を指すスライスを返します。
+            <br>第一引数は型、第二は長さ、第三は容量を指定できます。
+            <br>あとはスライスは多次元構造も取れます。
+            <h4>append</h4>
+            s = append(s,1,2)
+            <br>このように元のスライス、それに足す値を指定することでsliceを大きくすることもできますし、そのときにもしもとの配列より大きくなってしまうときは新しい配列が割り当てられます。
+          </div>
+          <div class="itemWrapper">
+            <h3>Range</h3>
+            forループに利用するrangeはスライスやmapを一つずつ反復処理するために使います
+          </div>
+          <div class="itemWrapper">
+            <h3>map</h3>
+            mapは構造体とにていますが、キーが必要です。
+            <br>map は自分で名前をつけて値を格納できます。
+            <br>使い方は
+            <ol>
+              <li>挿入や更新</li>
+              m[key] = elem
+              <li>取得</li>
+              elem = m[key]
+              <li>削除</li>
+              delete(m.key)
+              <li>存在の確認</li>
+              elem, ok = m[key]
+              <br>キーに対する要素が存在している場合はokはtrueとなり、そうでなければfalseとなります。
+            </ol>
+            各単語の出現回数のｍapを返す関数を作ってみましょう
+            <div class="code">
+              package main
+
+              <br>import (
+              <br>	"golang.org/x/tour/wc"
+              <br>	"strings"
+              <br>)
+
+              <br>func WordCount(s string) map[string]int {
+              <br>	result := map[string]int{}
+              <br>	for _, word := range strings.Fields(s){
+              <br>		result[word]++
+              <br>	}
+              <br>	return result
+              <br>}
+
+              <br>func main() {
+              <br>	wc.Test(WordCount)
+              <br>}
+
+            </div>
+            このコードではまず必要パッケージをダウンロードして
+            <br>string型のsという引数を渡したときにstringというmapを返す関数です
+            <br>中の処理は、まず値を返す変数を用意して、sをstrings.Fieldsで分割し、それぞれをwordとしてfor文でくりかえし
+            <br>wordというkeyのvalueを一つずつ増やすという操作をしています。
+            
+          </div>
+        </div>
+      </div>
+
+
 
 </body>
 </html>
