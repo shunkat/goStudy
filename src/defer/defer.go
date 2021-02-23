@@ -1,13 +1,12 @@
+//deferで指定した関数をその関数の呼び出し元の関数が終わったあとに実行することができます。
+//すぐにその引数は評価されますが、実行されるのは最後になります。
 package main
 
 import "fmt"
 
 func main() {
-	fmt.Println("counting")
+	defer fmt.Println("world")
 
-	for i := 0; i < 10; i++ {
-		defer fmt.Println(i)
-	}
+	fmt.Println("hello")
 
-	fmt.Println("done")
 }

@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"runtime"
 )
 
+//switchに指定した値がcaseのいずれかに合致したら自動でbreakしてくれます。
+//この下の式はosという変数に自分のosの情報を格納してそれに応じて条件分岐するのですが当てはまらなかった場合はdefaultが実行されます。
 func main() {
-	fmt.Println("When's Saturday?")
-	today := time.Now().Weekday()
-	switch time.Saturday {
-	case today + 0:
-		fmt.Println("Today.")
-	case today + 1:
-		fmt.Println("Tomorrow.")
-	case today + 2:
-		fmt.Println("In two days.")
+	fmt.Print("Go runs on ")
+	switch os := runtime.GOOS; os {
+	case "darwin":
+		fmt.Println("OS X.")
+	case "linux":
+		fmt.Println("Linux.")
 	default:
-		fmt.Println("Too far away.")
+		// freebsd, openbsd,
+		// plan9, windows...
+		//ここはどうやら最後に.をつけるフォーマットで当てはまらなかった他のOS名を出力しているっぽい
+		fmt.Printf("%s.\n", os)
 	}
 }

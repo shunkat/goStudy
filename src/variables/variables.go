@@ -1,18 +1,15 @@
+//変数は宣言してから使います。複数同時に宣言することもできますし、その複数の変数が同じ型なら最後に一回だけ型を宣言すれば良いです。
 package main
 
-import (
-	"fmt"
-	"math"
-)
+import "fmt"
 
-var k int = 22
+//関数func main以外でも使うものは外側で宣言する
+var c, python, java bool
 
 func main() {
-	//int という数字を合う買う方で変数iを宣言直後に初期値の10を代入
-	var i int = 10
-	//:=  を使って型宣言や初期化をしないで使うこともできます。
-	j := 6
-	fmt.Printf("%T %v\n", i, j)
-	var s float64 = math.Sqrt(float64(j))
-	fmt.Println(s)
+	//関数内でしか使わないiはfuncの中で宣言している。
+	var i int
+	i = 2
+	c = true
+	fmt.Println(i, c, python, java)
 }

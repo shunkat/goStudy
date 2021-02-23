@@ -5,19 +5,15 @@ import (
 	"math"
 )
 
-func pow(x, n, lim float64) float64 {
-	if v := math.Pow(x, n); v < lim {
-		return v
-	} else {
-		fmt.Printf("%g >= %g\n", v, lim)
+func sqrt(x float64) string {
+	if x < 0 {
+		//xがマイナスだった場合にプラスにしてから平方根にして虚数記号のiをつけています
+		return sqrt(-x) + "i"
 	}
-	// can't use v here, though
-	return lim
+
+	return fmt.Sprint(math.Sqrt(x))
 }
 
 func main() {
-	fmt.Println(
-		pow(3, 2, 10),
-		pow(3, 3, 20),
-	)
+	fmt.Println(sqrt(2), sqrt(-4))
 }
