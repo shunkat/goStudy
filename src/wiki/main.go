@@ -25,6 +25,23 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 }
 
+//ページの編集用のページを作成します。
+func editHandler(w http.ResponseWriter, r *http.Request) {
+	//ここではeditもtestも文字数が同じ4文字なので同じメソッドで切り分けることができます。なので同じメソッドを使っているということらしいです。
+	title := r.URL.Path[lenPath:]
+	p, err := loadPage(title)
+	if err != nil {
+		p = &Page{Title: title}
+	}
+	//以下は作成するHTML
+	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
+		"<form action=\"/save/%s\" method=\"POST\">"+ //一番下のformの閉じタグまでのあいだをPostメソッドでlocalhost:8080/save に値を渡すという処理です
+		"<textarea name=\"body\">%s</textarea><br>"+ //textareaでタイトルの説明文bodyのformを作る処理です
+		"<input type=\"submit\" value=\"Save\">"+ //Saveというボタンを配置しています。
+		"</form>",
+		p.Title, p.Title, p.Body)
+} //あとはこれを保存するメソッドを書かなくてはいけません。
+
 //まずはページの保存とそれを読み取れるようなものを目指します、
 //ここではPage型の変数のポインターpに対してメソッドとしてsaveを定義しています。
 //その返り値はerror型です。
@@ -54,6 +71,7 @@ func loadPage(title string) (*Page, error) {
 func main() {
 	//
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/edit/", editHandler)
 	//p2という変数に先程のページを読み出して代入します。そのときに使う関数は上で定義しているloadpageです
 	http.ListenAndServe(":8080", nil)
 }
