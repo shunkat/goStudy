@@ -18,8 +18,10 @@ const lenPath = len("/view/")
 
 //前回のハンドラーをviewHandlerとして関数化します
 func viewHandler(w http.ResponseWriter, r *http.Request) {
+	//先程のpathの長さをtitleとして持つようにします
 	title := r.URL.Path[lenPath:]
 	p, _ := loadPage(title)
+	//ここでは読み込んだページのtitleをh1タグに、bodyをdivタグに入れています。
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 }
 
@@ -50,11 +52,8 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	//ここでp1という仮のページを格納する変数を用意して、そこにtest用のタイトルとbodyを格納します。
-	p1 := &Page{Title: "TestPage", Body: []byte("This is a smple page")}
-	//そのあとにそれを保存して
-	p1.save()
+	//
+	http.HandleFunc("/view/", viewHandler)
 	//p2という変数に先程のページを読み出して代入します。そのときに使う関数は上で定義しているloadpageです
-	p2, _ := loadPage("TestPage")
-	fmt.Println(string(p2.Body))
+	http.ListenAndServe(":8080", nil)
 }
