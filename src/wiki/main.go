@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"html/template"
 	"io/ioutil" //コレはgo言語で他のファイル形式を読み取るときに使うパッケージです。
 	"net/http"
 )
@@ -20,27 +20,34 @@ const lenPath = len("/view/")
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	//先程のpathの長さをtitleとして持つようにします
 	title := r.URL.Path[lenPath:]
-	p, _ := loadPage(title)
+	p, err := loadPage(title)
+	if err != nil {
+		//新規ページのURLが入力されたときはeditHanderのURLに飛ばすことで編集ページに飛ばすことができます。
+		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+		return
+	}
 	//ここでは読み込んだページのtitleをh1タグに、bodyをdivタグに入れています。
-	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+	renderTemplate(w, "view", p)
 }
 
 //ページの編集用のページを作成します。
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	//ここではeditもtestも文字数が同じ4文字なので同じメソッドで切り分けることができます。なので同じメソッドを使っているということらしいです。
+	//ここではeditもtestも文字数が同じ4文字なので同じメソッドで切り分けることができます。なので同じメソッドを使ってURLからtitleをとってきているそうです。
 	title := r.URL.Path[lenPath:]
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
 	}
-	//以下は作成するHTML
-	fmt.Fprintf(w, "<h1>Editing %s</h1>"+
-		"<form action=\"/save/%s\" method=\"POST\">"+ //一番下のformの閉じタグまでのあいだをPostメソッドでlocalhost:8080/save に値を渡すという処理です
-		"<textarea name=\"body\">%s</textarea><br>"+ //textareaでタイトルの説明文bodyのformを作る処理です
-		"<input type=\"submit\" value=\"Save\">"+ //Saveというボタンを配置しています。
-		"</form>",
-		p.Title, p.Title, p.Body)
+	renderTemplate(w, "edit", p)
 } //あとはこれを保存するメソッドを書かなくてはいけません。
+
+//viewとeditで共通する部分の切り出し
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	//tmpl.htmlをgo言語のtemplateパッケージで読み取ってくる
+	t, _ := template.ParseFiles(tmpl + ".html")
+	//tmol.htmlのなかにTitleやBodyを入れれるようにする
+	t.Execute(w, p)
+}
 
 //まずはページの保存とそれを読み取れるようなものを目指します、
 //ここではPage型の変数のポインターpに対してメソッドとしてsaveを定義しています。
