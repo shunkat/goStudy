@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-//wikiのデータ構造,Pageという構造体型の別名にTitleというstringとBodyというバイト型の変数が格納されて、それが一つのページとなっています。
+// Page はwikiのデータ構造,Pageという構造体型の別名にTitleというstringとBodyというバイト型の変数が格納されて、それが一つのページとなっています
 type Page struct {
 	Title string //タイトル
 	Body  []byte //タイトルの中身
@@ -39,7 +39,18 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 		p = &Page{Title: title}
 	}
 	renderTemplate(w, "edit", p)
-} //あとはこれを保存するメソッドを書かなくてはいけません。
+}
+
+//引数は他と同様
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	//これが呼ばれるのはsaveボタンが押されたとき。
+	title := r.URL.Path[lenPath:]
+	body := r.FormValue("body")
+	p := &Page{Title: title, Body: []byte(body)}
+	p.save()
+	http.Redirect(w, r, "/view/"+title, http.StatusFound)
+	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
+}
 
 //viewとeditで共通する部分の切り出し
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
@@ -76,9 +87,10 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	//
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editHandler)
+	// saveというURLに飛ばされたときにsaveHandlerというメソッドが動くようにしている。
+	http.HandleFunc("/save/", saveHandler)
 	//p2という変数に先程のページを読み出して代入します。そのときに使う関数は上で定義しているloadpageです
 	http.ListenAndServe(":8080", nil)
 }
