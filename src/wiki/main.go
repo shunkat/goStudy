@@ -47,17 +47,30 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[lenPath:]
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
-	p.save()
+	// ここにエラーハンドリングを追加
+	err := p.save()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
 }
 
 //viewとeditで共通する部分の切り出し
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	//tmpl.htmlをgo言語のtemplateパッケージで読み取ってくる
-	t, _ := template.ParseFiles(tmpl + ".html")
+	//ここでエラーハンドリングをしていなかったのでします。
+	t, err := template.ParseFiles(tmpl + ".html")
+	if err != nil {
+		// InternalServer Errorというエラーメッセージを送信してくれます。
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	//tmol.htmlのなかにTitleやBodyを入れれるようにする
 	t.Execute(w, p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 //まずはページの保存とそれを読み取れるようなものを目指します、
