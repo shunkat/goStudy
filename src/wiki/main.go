@@ -16,6 +16,18 @@ type Page struct {
 //パスのアドレスを設定して文字の長さを定数として持つ
 const lenPath = len("/view/")
 
+// テンプレートファイルの配列を用意,keyを持つ配列templatesを用意した。
+var templates = make(map[string]*template.Template)
+
+// 初期化関数を用意する、これはmain関数より先に呼び出される
+func init() {
+	for _, tmpl := range []string{"edit", "view"} {
+		//templateMustではOSのエラーのときにはpanicが起こって操作が終了するというエラー処理をしてくれる
+		t := template.Must(template.ParseFiles(tmpl + ".html"))
+		templates[tmpl] = t
+	}
+}
+
 //前回のハンドラーをviewHandlerとして関数化します
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	//先程のpathの長さをtitleとして持つようにします
@@ -57,17 +69,25 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
 }
 
+// // 以下は自分のポートフォリオ用のページの作成メソッドです。
+// func portHandler(w http.ResponseWriter, r *http.Request) {
+// 	//このページは他と違い単一のページなのでタイトルも直打ちしちゃいます。
+// 	title := port
+// 	p, err := loadPage(title)
+// 	if err != nil {
+// 		//もし正しいURL出なかったときはエラーメッセージを返します。
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+// 	//ここでは読み込んだページのtitleをh1タグに、bodyをdivタグに入れています。
+// 	renderTemplate(w, "view", p)
+// }
+
 //viewとeditで共通する部分の切り出し
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	//ここでエラーハンドリングをしていなかったのでします。
-	t, err := template.ParseFiles(tmpl + ".html")
-	if err != nil {
-		// InternalServer Errorというエラーメッセージを送信してくれます。
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+
 	//tmol.htmlのなかにTitleやBodyを入れれるようにする
-	t.Execute(w, p)
+	err := templates[tmpl].Execute(w, p)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
