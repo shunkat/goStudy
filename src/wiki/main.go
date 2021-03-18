@@ -50,12 +50,7 @@ func getTitle(w http.ResponseWriter, r *http.Request) (title string, err error) 
 }
 
 //前回のハンドラーをviewHandlerとして関数化します
-func viewHandler(w http.ResponseWriter, r *http.Request) {
-	//先程のpathの長さをtitleとして持つようにします
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
+func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		//新規ページのURLが入力されたときはeditHanderのURLに飛ばすことで編集ページに飛ばすことができます。
@@ -67,12 +62,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //ページの編集用のページを作成します。
-func editHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
-
+func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
@@ -81,21 +71,34 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 //引数は他と同様
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	title, err := getTitle(w, r)
-	if err != nil {
-		return
-	}
+func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
 	// ここにエラーハンドリングを追加
-	err = p.save()
+	err := p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
+}
+
+//
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Requestからページタイトルを取り出して、fnを呼び出す。
+		title := r.URL.Path[lenPath:]
+		if !titleValidator.MatchString(title) {
+			//これにより意図しないURLに対しては４０４notFoundが表示されるようになった。
+			http.NotFound(w, r)
+			err := errors.New("Invalid Page Title")
+			//自由に作ったエラーメッセージをlog出力
+			log.Print(err)
+			return
+		}
+		fn(w, r, title)
+	}
 }
 
 // // 以下は自分のポートフォリオ用のページの作成メソッドです。
@@ -149,10 +152,11 @@ func loadPage(title string) (*Page, error) {
 }
 
 func main() {
-	http.HandleFunc("/view/", viewHandler)
-	http.HandleFunc("/edit/", editHandler)
+	//makeHandlerのなかで関数のvalidationを行うように変更
+	http.HandleFunc("/view/", makeHandler(viewHandler))
+	http.HandleFunc("/edit/", makeHandler(editHandler))
 	// saveというURLに飛ばされたときにsaveHandlerというメソッドが動くようにしている。
-	http.HandleFunc("/save/", saveHandler)
+	http.HandleFunc("/save/", makeHandler(saveHandler))
 	//p2という変数に先程のページを読み出して代入します。そのときに使う関数は上で定義しているloadpageです
 	http.ListenAndServe(":8080", nil)
 }
