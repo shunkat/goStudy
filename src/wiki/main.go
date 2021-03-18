@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors" //新しく自分でエラー文を作るためのpackage
 	"html/template"
 	"io/ioutil" //コレはgo言語で他のファイル形式を読み取るときに使うパッケージです。
+	"log"
 	"net/http"
+	"regexp" //これは正規表現用のpackeage
 )
 
 // Page はwikiのデータ構造,Pageという構造体型の別名にTitleというstringとBodyというバイト型の変数が格納されて、それが一つのページとなっています
@@ -19,6 +22,11 @@ const lenPath = len("/view/")
 // テンプレートファイルの配列を用意,keyを持つ配列templatesを用意した。
 var templates = make(map[string]*template.Template)
 
+// 正規表現でURLを生成できる大文字小文字の英字と数字を判別するため
+//^は一文字目のチェック、[]はその中の文字のチェック＄は最後の文字にマッチ+1文字以上
+//これにより/などが使えなくなっている
+var titleValidator = regexp.MustCompile("^[a-zA-Z0-9]+$")
+
 // 初期化関数を用意する、これはmain関数より先に呼び出される
 func init() {
 	for _, tmpl := range []string{"edit", "view"} {
@@ -28,10 +36,26 @@ func init() {
 	}
 }
 
+// タイトルのチェックを行う
+func getTitle(w http.ResponseWriter, r *http.Request) (title string, err error) {
+	title = r.URL.Path[lenPath:]
+	if !titleValidator.MatchString(title) {
+		//これにより意図しないURLに対しては４０４notFoundが表示されるようになった。
+		http.NotFound(w, r)
+		err = errors.New("Invalid Page Title")
+		//自由に作ったエラーメッセージをlog出力
+		log.Print(err)
+	}
+	return
+}
+
 //前回のハンドラーをviewHandlerとして関数化します
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	//先程のpathの長さをtitleとして持つようにします
-	title := r.URL.Path[lenPath:]
+	title, err := getTitle(w, r)
+	if err != nil {
+		return
+	}
 	p, err := loadPage(title)
 	if err != nil {
 		//新規ページのURLが入力されたときはeditHanderのURLに飛ばすことで編集ページに飛ばすことができます。
@@ -44,8 +68,11 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 //ページの編集用のページを作成します。
 func editHandler(w http.ResponseWriter, r *http.Request) {
-	//ここではeditもtestも文字数が同じ4文字なので同じメソッドで切り分けることができます。なので同じメソッドを使ってURLからtitleをとってきているそうです。
-	title := r.URL.Path[lenPath:]
+	title, err := getTitle(w, r)
+	if err != nil {
+		return
+	}
+
 	p, err := loadPage(title)
 	if err != nil {
 		p = &Page{Title: title}
@@ -55,12 +82,14 @@ func editHandler(w http.ResponseWriter, r *http.Request) {
 
 //引数は他と同様
 func saveHandler(w http.ResponseWriter, r *http.Request) {
-	//これが呼ばれるのはsaveボタンが押されたとき。
-	title := r.URL.Path[lenPath:]
+	title, err := getTitle(w, r)
+	if err != nil {
+		return
+	}
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
 	// ここにエラーハンドリングを追加
-	err := p.save()
+	err = p.save()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
