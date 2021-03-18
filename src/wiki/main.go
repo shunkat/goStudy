@@ -83,6 +83,15 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
 }
+func topHandler(w http.ResponseWriter, r *http.Request) {
+	data := "TestPage"
+	t := template.Must(template.ParseFiles("top.html"))
+	err := t.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
 
 //
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -157,6 +166,7 @@ func main() {
 	http.HandleFunc("/edit/", makeHandler(editHandler))
 	// saveというURLに飛ばされたときにsaveHandlerというメソッドが動くようにしている。
 	http.HandleFunc("/save/", makeHandler(saveHandler))
+	http.HandleFunc("/top/", topHandler)
 	//p2という変数に先程のページを読み出して代入します。そのときに使う関数は上で定義しているloadpageです
 	http.ListenAndServe(":8080", nil)
 }
