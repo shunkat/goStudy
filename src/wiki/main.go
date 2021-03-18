@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp" //これは正規表現用のpackeage
+	"strings"
 )
 
 // Page はwikiのデータ構造,Pageという構造体型の別名にTitleというstringとBodyというバイト型の変数が格納されて、それが一つのページとなっています
@@ -26,6 +27,9 @@ var templates = make(map[string]*template.Template)
 //^は一文字目のチェック、[]はその中の文字のチェック＄は最後の文字にマッチ+1文字以上
 //これにより/などが使えなくなっている
 var titleValidator = regexp.MustCompile("^[a-zA-Z0-9]+$")
+
+//.txt
+const expend_string = ".txt"
 
 // 初期化関数を用意する、これはmain関数より先に呼び出される
 func init() {
@@ -84,9 +88,32 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	// 以上のコードによって、存在しないページのeditボタンが押されたときに、入力されたbodyとtitleのページが新たに作られるような関数ができた。
 }
 func topHandler(w http.ResponseWriter, r *http.Request) {
-	data := "TestPage"
+	//今のmain.goがいるディレクトリの階層にある.txtデータを取得する
+	files, err := ioutil.ReadDir("./")
+	if err != nil {
+		err = errors.New("所定のディレクトリ内にテキストファイルがアリません")
+		log.Print(err)
+		return
+	}
+
+	var paths []string    //textdataの名前
+	var fileName []string //testdataのファイル名
+	for _, file := range files {
+		//対象となる.txtデータのみを取得
+		if strings.HasSuffix(file.Name(), expend_string) {
+			//テキストデータの.txtで名前をスライスしたものをfileNameにいれる
+			fileName = strings.Split(string(file.Name()), expend_string)
+			paths = append(paths, fileName[0])
+		}
+	}
+	// ファイルパスがなかった場合
+	if paths == nil {
+		err = errors.New("テキストファイルが存在しません")
+		log.Print(err)
+	}
+
 	t := template.Must(template.ParseFiles("top.html"))
-	err := t.Execute(w, data)
+	err = t.Execute(w, paths)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
