@@ -91,7 +91,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	//今のmain.goがいるディレクトリの階層にある.txtデータを取得する
 	files, err := ioutil.ReadDir("./")
 	if err != nil {
-		err = errors.New("所定のディレクトリ内にテキストファイルがアリません")
+		err = errors.New("所定のディレクトリ内にテキストファイルがありません")
 		log.Print(err)
 		return
 	}
@@ -101,12 +101,12 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	for _, file := range files {
 		//対象となる.txtデータのみを取得
 		if strings.HasSuffix(file.Name(), expend_string) {
-			//テキストデータの.txtで名前をスライスしたものをfileNameにいれる
+			//このままでは.txtも含めたすべてが表示されてしまうので、テキストデータの.txtで名前をスライスしたものをfileNameにいれる
 			fileName = strings.Split(string(file.Name()), expend_string)
 			paths = append(paths, fileName[0])
 		}
 	}
-	// ファイルパスがなかった場合
+	// テキストファイルがなくてpathsがnilだった場合にエラーを表示させる。
 	if paths == nil {
 		err = errors.New("テキストファイルが存在しません")
 		log.Print(err)

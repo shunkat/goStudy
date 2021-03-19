@@ -1,5 +1,14 @@
-<h1>Wikiページ</h1>
-{{range .
-}}
-<p>[<a href="/view/{{. |html|}}">{{.}}</a>]</p>
-<p>[<a href="/edit/{{. |html|}}">edit</a>]</p>
+<!-- style.cssを読み込むような形にしないがそれはただただめんどくさいから、後で修正しましょう -->
+<h1 style="background: #c2edff;padding: 0.5rem">Wikiページ</h1>
+<h2 style="background: linear-gradient(transparent 70%, #a7d6ff 70%)">新規作成方法</h2>
+<div>
+  "/edit/title(最初の文字は英数字)"で新しいページと説明文を作成することができます。
+</div>
+<h2 style="background: linear-gradient(transparent 70%, #a7d6ff 70%)">ページ</h2>
+<div>
+  <!-- あるテキストファイル分だけループを回して全部を表示させたい。 -->
+  <!-- ここでは今までの構造体のときとちがい、.の中には配列が入っているのでこの表現でrangeを使って中身を回せる -->
+  {{range .}}
+  <p style="border:#d0d0d0 ridge 5px;">[<a href="/view/{{. |html|}}">{{.}}</a>][<a href="/edit/{{. |html|}}">edit</a>]</p>
+  {{end}}
+</div>
