@@ -1,0 +1,1 @@
+this is a sampletext for making sure localhost works when not connected with internet.
